@@ -1,0 +1,14 @@
+{
+  "name": "වාර පරීක්ෂණ ලකුණු විශ්ලේෂණය",
+  "short_name": "ලකුණු විශ්ලේෂණය",
+  "description": "සිංහල පාසල් වාර පරීක්ෂණ ප්‍රතිඵල විශ්ලේෂණය",
+  "lang": "si",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f3f6fa",
+  "theme_color": "#102a56",
+  "icons": [
+    {"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
+  ]
+}

@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="si">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#102a56">
+  <meta name="description" content="පාසල් වාර පරීක්ෂණ ලකුණු විශ්ලේෂණය සහ සිංහල ප්‍රස්ථාර සකස් කිරීම">
+  <title>වාර පරීක්ෂණ ලකුණු විශ්ලේෂණය</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="app-header no-print">
+    <div class="brand-mark" aria-hidden="true">අ</div>
+    <div>
+      <p class="eyebrow">පාසල් දත්ත මෙවලම</p>
+      <h1>වාර පරීක්ෂණ ලකුණු විශ්ලේෂණය</h1>
+      <p class="subtitle">සිංහල ප්‍රස්ථාර • දේශීය ගබඩා කිරීම • නොමිලේ භාවිතය</p>
+    </div>
+    <button id="installBtn" class="btn btn-light" hidden>App එක Install කරන්න</button>
+  </header>
+
+  <main class="page-wrap">
+    <section class="notice no-print">
+      <strong>දත්ත ආරක්ෂාව:</strong> මෙම අනුවාදය දත්ත ඔබ භාවිත කරන browser එකේම සුරකියි. වෙනත් පරිගණකයකට ස්වයංක්‍රීයව sync නොවේ. නිතර Backup JSON ගොනුවක් export කර තබාගන්න.
+    </section>
+
+    <section class="panel editor-panel no-print">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">01 / දත්ත ඇතුළත් කිරීම</p>
+          <h2>විෂය සහ පන්ති තොරතුරු</h2>
+        </div>
+        <div class="saved-status" id="savedStatus" role="status">දත්ත තවම සුරැකී නැත</div>
+      </div>
+
+      <div class="form-grid">
+        <label>පාසලේ නම
+          <input id="schoolName" type="text" placeholder="උදා: මුරුත්තෙට්ටුව ක.වි." maxlength="120">
+        </label>
+        <label>විෂය
+          <input id="subjectName" type="text" placeholder="උදා: තොරතුරු හා සන්නිවේදන තාක්ෂණය" maxlength="100" required>
+        </label>
+        <label>වාරය
+          <select id="term">
+            <option>පළමු වාරය</option>
+            <option selected>දෙවන වාරය</option>
+            <option>තෙවන වාරය</option>
+          </select>
+        </label>
+        <label>අධ්‍යයන වර්ෂය
+          <input id="academicYear" type="number" min="2000" max="2100" value="2026">
+        </label>
+      </div>
+
+      <div class="table-scroll">
+        <table class="input-table">
+          <thead>
+            <tr>
+              <th>ශ්‍රේණිය</th>
+              <th>මුළු සිසුන්</th>
+              <th>ලකුණු 40ට අඩු</th>
+              <th>ලකුණු 40 හෝ වැඩි</th>
+              <th>නොපැමිණි</th>
+            </tr>
+          </thead>
+          <tbody id="gradeInputs"></tbody>
+        </table>
+      </div>
+      <p class="helper">සෑම ශ්‍රේණියකම: මුළු සිසුන් = ලකුණු 40ට අඩු + ලකුණු 40 හෝ වැඩි + නොපැමිණි. හිස් ශ්‍රේණි 0 ලෙස ගණනය වේ.</p>
+
+      <div class="actions">
+        <button id="generateBtn" class="btn btn-primary">ප්‍රස්ථාරය සකස් කරන්න</button>
+        <button id="saveBtn" class="btn btn-secondary">මෙම විෂය සුරකින්න</button>
+        <button id="newBtn" class="btn btn-ghost">නව විෂයක්</button>
+      </div>
+      <p id="validationMsg" class="validation" role="alert"></p>
+    </section>
+
+    <section class="panel saved-panel no-print">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">02 / සුරැකි විශ්ලේෂණ</p>
+          <h2>සුරැකි විෂයයන්</h2>
+        </div>
+        <div class="actions compact">
+          <button id="exportJsonBtn" class="btn btn-secondary">Backup Export (JSON)</button>
+          <button id="exportCsvBtn" class="btn btn-ghost">CSV Export</button>
+          <label class="btn btn-ghost file-label">Backup Import
+            <input id="importJsonInput" type="file" accept=".json,application/json" hidden>
+          </label>
+        </div>
+      </div>
+      <div id="savedList" class="saved-list"><p class="empty-state">තවම විෂයයන් සුරැකී නැත.</p></div>
+    </section>
+
+    <section class="report-shell" id="report">
+      <div class="report-heading">
+        <div class="crest" aria-hidden="true">✦</div>
+        <div class="report-title">
+          <p id="reportSchool" class="report-school">පාසලේ නම</p>
+          <h2 id="reportMainTitle">දෙවන වාර පරීක්ෂණ ලකුණු විශ්ලේෂණය</h2>
+          <p id="reportMeta">විෂය: — | ශ්‍රේණි 06–11 | වර්ෂය: 2026</p>
+        </div>
+        <div class="crest" aria-hidden="true">✦</div>
+      </div>
+
+      <div class="chart-section">
+        <div class="chart-heading">
+          <h3>ශ්‍රේණි අනුව ප්‍රතිඵල සංසන්දනය</h3>
+          <span class="chart-subtitle">ශ්‍රේණි 06 සිට 11 දක්වා</span>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="resultsChart" width="1400" height="520" aria-label="ශ්‍රේණි අනුව ප්‍රතිඵල ප්‍රස්ථාරය"></canvas>
+        </div>
+        <div class="legend">
+          <span><i class="legend-dot total"></i>මුළු සිසුන්</span>
+          <span><i class="legend-dot below"></i>ලකුණු 40ට අඩු</span>
+          <span><i class="legend-dot above"></i>ලකුණු 40 හෝ වැඩි</span>
+          <span><i class="legend-dot pass"></i>සාමාර්ථ ප්‍රතිශතය (%)</span>
+          <span><i class="legend-dot absent"></i>නොපැමිණි</span>
+        </div>
+      </div>
+
+      <div class="results-section">
+        <h3>විස්තරාත්මක ප්‍රතිඵල වගුව</h3>
+        <div class="table-scroll">
+          <table class="results-table">
+            <thead>
+              <tr>
+                <th>ශ්‍රේණිය</th>
+                <th>මුළු සිසුන්</th>
+                <th>ලකුණු 40ට අඩු</th>
+                <th>ලකුණු 40 හෝ වැඩි</th>
+                <th>නොපැමිණි</th>
+                <th>සාමාර්ථ ප්‍රතිශතය</th>
+              </tr>
+            </thead>
+            <tbody id="reportRows"></tbody>
+            <tfoot id="reportTotals"></tfoot>
+          </table>
+        </div>
+      </div>
+
+      <div class="summary-row">
+        <div class="pass-card">
+          <p>සමස්ත සාමාර්ථ ප්‍රතිශතය</p>
+          <strong id="overallPass">0%</strong>
+          <span id="overallPassCaption">පැමිණි සිසුන් මත පදනම්ව</span>
+        </div>
+        <div class="formula-card">
+          <h3>ගණනය කරන සූත්‍රය</h3>
+          <p>සාමාර්ථ ප්‍රතිශතය = (ලකුණු 40 හෝ වැඩි ලබාගත් සිසුන් ÷ විභාගයට පැමිණි සිසුන්) × 100</p>
+          <p class="formula-note">විභාගයට පැමිණි සිසුන් = මුළු සිසුන් − නොපැමිණි සිසුන්</p>
+        </div>
+      </div>
+      <div class="report-footer">
+        <span>පාසල් අධ්‍යාපන කටයුතු සඳහා</span>
+        <span id="generatedDate"></span>
+      </div>
+    </section>
+
+    <div class="report-actions no-print">
+      <button id="printBtn" class="btn btn-primary">මුද්‍රණය / PDF ලෙස සුරකින්න</button>
+      <button id="downloadPngBtn" class="btn btn-secondary">ප්‍රස්ථාර PNG ලෙස බාගන්න</button>
+    </div>
+
+    <footer class="app-footer no-print">නොමිලේ භාවිත කළ හැකි පාසල් මෙවලමක් • ඔබේ දත්ත ඔබේ browser එකේ පමණි</footer>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
